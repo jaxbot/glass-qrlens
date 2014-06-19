@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.net.Uri;
 
 import com.jaxbot.glass.barcode.scan.CaptureActivity;
 
@@ -26,6 +27,13 @@ public class MainActivity extends Activity {
 				Bundle res = data.getExtras();
 				Log.w("app", res.getString("qr_type").toString());
 				Log.w("app", res.getString("qr_data").toString());
+
+				if (res.getString("qr_type").toString().equals("URI")) {
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(res.getString("qr_data").toString()));
+					startActivity(browserIntent);
+
+					finish();
+				}
 			}
 		}
 	}
