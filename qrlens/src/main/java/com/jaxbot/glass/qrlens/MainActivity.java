@@ -2,10 +2,9 @@ package com.jaxbot.glass.qrlens;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.jaxbot.glass.barcode.scan.CaptureActivity;
 
