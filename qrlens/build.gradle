@@ -1,0 +1,40 @@
+import java.text.SimpleDateFormat
+
+apply plugin: 'android'
+
+def versionMajor = 1
+
+def buildTime() {
+    def df = new SimpleDateFormat("yyyy-MM-dd'-'HH:mm")
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date())
+}
+
+android {
+    lintOptions {
+        abortOnError false
+    }
+
+    //compileSdkVersion 19
+    compileSdkVersion "Google Inc.:Glass Development Kit Preview:19"
+    buildToolsVersion "19.0.3"
+
+//http://tools.android.com/tech-docs/new-build-system/user-guide
+
+    repositories {
+        mavenCentral()
+    }
+
+
+    defaultConfig {
+        minSdkVersion 10
+        targetSdkVersion 19
+        versionName "${versionMajor}-b-${buildTime()}"
+        versionCode 1
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:19.0.0'
+	compile 'com.google.zxing:core:3.1.0'
+}
