@@ -1,6 +1,7 @@
 import java.text.SimpleDateFormat
 
 apply plugin: 'android'
+apply plugin: 'eclipse'
 
 def versionMajor = 1
 
