@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+
+import com.google.android.glass.app.Card;
 
 import com.jaxbot.glass.barcode.scan.CaptureActivity;
 
@@ -32,6 +35,10 @@ public class MainActivity extends Activity {
 					startActivity(browserIntent);
 
 					finish();
+				} else {
+					Card card = new Card(this);
+					card.setText(res.getString("qr_data").toString());
+					setContentView(card.getView());
 				}
 			}
 		}
