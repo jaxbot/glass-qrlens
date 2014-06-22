@@ -32,6 +32,8 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;
 
+import com.jaxbot.glass.barcode.migrated.DecodeFormatManager;
+
 /**
  * This thread does all the heavy lifting of decoding the images.
  *
@@ -76,6 +78,7 @@ public final class DecodeThread extends Thread {
 //        decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
 //      }
     }
+    decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
     hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
 
     if (characterSet != null) {
