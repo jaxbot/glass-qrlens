@@ -30,14 +30,18 @@ public class MainActivity extends Activity {
 				Log.w("app", res.getString("qr_type").toString());
 				Log.w("app", res.getString("qr_data").toString());
 
-				if (res.getString("qr_type").toString().equals("URI")) {
+				String qrtype = res.getString("qr_type").toString();
+				String qrdata = res.getString("qr_data").toString();
+
+				if (qrtype.equals("URI")) {
 					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(res.getString("qr_data").toString()));
 					startActivity(browserIntent);
 
 					finish();
 				} else {
 					Card card = new Card(this);
-					card.setText(res.getString("qr_data").toString());
+					card.setText(qrdata);
+					card.setFootnote("QR Text Content");
 					setContentView(card.getView());
 				}
 			}
