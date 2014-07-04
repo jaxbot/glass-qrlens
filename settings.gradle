@@ -1,1 +1,2 @@
+include ':glass-barcode'
 include ':qrlens'
