@@ -2,10 +2,13 @@ package com.jaxbot.glass.barcode;
 
 import android.app.Activity;
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 
+import com.google.android.glass.media.Sounds;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 import com.google.android.glass.touchpad.GestureDetector.FingerListener;
@@ -59,7 +62,7 @@ public class BaseGlassActivity extends Activity implements FingerListener, Scrol
         return false;
     }
 
-    private GestureDetector createGestureDetector(Context context) {
+    private GestureDetector createGestureDetector(final Context context) {
         GestureDetector gestureDetector = new GestureDetector(context);
         //Create a base listener for generic gestures
         gestureDetector.setBaseListener(new GestureDetector.BaseListener() {
@@ -67,6 +70,10 @@ public class BaseGlassActivity extends Activity implements FingerListener, Scrol
             public boolean onGesture(Gesture gesture) {
                 if (gesture == Gesture.TAP) {
                     Log.v(TAG, "onSwipeTap");
+
+                    AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                    audio.playSoundEffect(Sounds.DISALLOWED);
+
                     return onTap();
                 } else if (gesture == Gesture.TWO_TAP) {
                     Log.v(TAG, "onSwipeTwoTap");

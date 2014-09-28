@@ -14,6 +14,7 @@
 package com.jaxbot.glass.barcode.scan;
 
 // Adjust to whatever the main package name is
+import com.google.android.glass.media.Sounds;
 import com.jaxbot.glass.qrlens.R;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -111,6 +113,7 @@ public final class CaptureActivity extends BaseGlassActivity implements
     protected void onResume() {
         super.onResume();
 
+
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
         // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
@@ -120,8 +123,11 @@ public final class CaptureActivity extends BaseGlassActivity implements
 
         mHandler = null;
 
+
+
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
+
         if (mHasSurface) {
             // The activity was paused but not stopped, so the surface still exists. Therefore
             // surfaceCreated() won't be called, so init the camera here.
@@ -270,8 +276,8 @@ public final class CaptureActivity extends BaseGlassActivity implements
     private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
             ResultPoint b, float scaleFactor) {
         if (a != null && b != null) {
-            canvas.drawLine(scaleFactor * a.getX(), scaleFactor * a.getY(),
-                    scaleFactor * b.getX(), scaleFactor * b.getY(), paint);
+            //canvas.drawLine(scaleFactor * a.getX(), scaleFactor * a.getY(),
+               //     scaleFactor * b.getX(), scaleFactor * b.getY(), paint);
         }
     }
 
