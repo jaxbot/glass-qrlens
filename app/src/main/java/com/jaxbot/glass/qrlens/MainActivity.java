@@ -44,7 +44,9 @@ public class MainActivity extends Activity {
 					card.setFootnote("QR Text Content");
 					setContentView(card.getView());
 				}
-			}
+			} else {
+                finish();
+            }
 		}
 	}
 }
