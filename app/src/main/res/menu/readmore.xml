@@ -4,5 +4,5 @@
     <item
         android:id="@+id/menu_item_1"
         android:title="@string/read_more"
-         />   <!-- white on transparent icon -->
+        android:icon="@drawable/ic_document_50" />   <!-- white on transparent icon -->
 </menu>
