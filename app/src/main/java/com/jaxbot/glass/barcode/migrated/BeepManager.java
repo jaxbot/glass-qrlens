@@ -13,14 +13,11 @@
 
 package com.jaxbot.glass.barcode.migrated;
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
-import com.google.android.glass.media.Sounds;
-import android.util.Log;
 
+import com.google.android.glass.media.Sounds;
 import com.jaxbot.glass.barcode.scan.CaptureActivity;
 
 /**

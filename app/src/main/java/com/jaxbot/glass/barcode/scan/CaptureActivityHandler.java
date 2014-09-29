@@ -14,10 +14,6 @@
 package com.jaxbot.glass.barcode.scan;
 
 // Adjust to whatever the main package name is
-import com.jaxbot.glass.qrlens.R;
-
-import java.util.Collection;
-import java.util.Map;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -33,11 +29,15 @@ import android.os.Message;
 import android.provider.Browser;
 import android.util.Log;
 
-import com.jaxbot.glass.barcode.scan.ui.ViewfinderView.ViewfinderResultPointCallback;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
+import com.jaxbot.glass.barcode.scan.ui.ViewfinderView.ViewfinderResultPointCallback;
+import com.jaxbot.glass.qrlens.R;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * This class handles all the messaging which comprises the state machine for

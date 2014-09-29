@@ -16,12 +16,6 @@
 
 package com.jaxbot.glass.barcode.scan;
 
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,8 +25,13 @@ import android.util.Log;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;
-
 import com.jaxbot.glass.barcode.migrated.DecodeFormatManager;
+
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This thread does all the heavy lifting of decoding the images.

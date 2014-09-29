@@ -13,8 +13,6 @@
 
 package com.google.zxing.client.android.camera;
 
-import java.io.IOException;
-
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -25,6 +23,8 @@ import android.view.SurfaceHolder;
 
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.client.android.camera.open.OpenCameraInterface;
+
+import java.io.IOException;
 
 /**
  * This object wraps the Camera service object and expects to be the only one

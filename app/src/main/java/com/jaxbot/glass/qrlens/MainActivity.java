@@ -7,15 +7,12 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-
-import com.google.android.glass.app.Card;
 
 import com.google.android.glass.media.Sounds;
 import com.google.android.glass.widget.CardBuilder;
@@ -28,10 +25,13 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 	final int SCAN_QR = 4;
+    final String TAG = "app";
+
+    final String FOOTER = "QR Text Content";
 
     private List<CardBuilder> mCards;
     private CardScrollView mCardScrollView;
-    private ExampleCardScrollAdapter mAdapter;
+    private MyCardScrollAdapter mAdapter;
 
     boolean mNeedsReadMore;
 
@@ -59,14 +59,15 @@ public class MainActivity extends Activity {
 		if (requestCode == SCAN_QR) {
 			if (resultCode == RESULT_OK) {
 				Bundle res = data.getExtras();
-				Log.w("app", res.getString("qr_type").toString());
-				Log.w("app", res.getString("qr_data").toString());
 
-				String qrtype = res.getString("qr_type").toString();
-				String qrdata = res.getString("qr_data").toString();
+                String qrtype = res.getString("qr_type");
+                String qrdata = res.getString("qr_data");
+
+				Log.w(TAG, qrtype);
+				Log.w(TAG, qrdata);
 
 				if (qrtype.equals("URI")) {
-					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(res.getString("qr_data").toString()));
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(qrdata));
 					startActivity(browserIntent);
 
 					finish();
@@ -75,11 +76,9 @@ public class MainActivity extends Activity {
                     createCards(qrdata);
 
                     mCardScrollView = new CardScrollView(this);
-                    mAdapter = new ExampleCardScrollAdapter();
+                    mAdapter = new MyCardScrollAdapter();
                     mCardScrollView.setAdapter(mAdapter);
                     mCardScrollView.activate();
-                    final Activity act = this;
-
 
                     mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -133,7 +132,7 @@ public class MainActivity extends Activity {
 
         mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
             .setText(data)
-            .setFootnote("QR Text Content")
+            .setFootnote(FOOTER)
         );
 
     }
@@ -156,7 +155,7 @@ public class MainActivity extends Activity {
             }
             mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
                 .setText(hunk)
-                .setFootnote("QR Text Content")
+                .setFootnote(FOOTER)
             );
         }
 
@@ -166,7 +165,7 @@ public class MainActivity extends Activity {
         mNeedsReadMore = false;
     }
 
-    private class ExampleCardScrollAdapter extends CardScrollAdapter {
+    private class MyCardScrollAdapter extends CardScrollAdapter {
 
         @Override
         public int getPosition(Object item) {

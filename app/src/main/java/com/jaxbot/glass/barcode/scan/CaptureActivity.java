@@ -14,22 +14,12 @@
 package com.jaxbot.glass.barcode.scan;
 
 // Adjust to whatever the main package name is
-import com.google.android.glass.media.Sounds;
-import com.jaxbot.glass.qrlens.R;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Map;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,20 +28,25 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.jaxbot.glass.barcode.BaseGlassActivity;
-import com.jaxbot.glass.barcode.migrated.BeepManager;
-import com.jaxbot.glass.barcode.migrated.FinishListener;
-import com.jaxbot.glass.barcode.migrated.InactivityTimer;
-import com.jaxbot.glass.barcode.scan.ui.ViewfinderView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
-
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ResultParser;
+import com.jaxbot.glass.barcode.BaseGlassActivity;
+import com.jaxbot.glass.barcode.migrated.BeepManager;
+import com.jaxbot.glass.barcode.migrated.FinishListener;
+import com.jaxbot.glass.barcode.migrated.InactivityTimer;
+import com.jaxbot.glass.barcode.scan.ui.ViewfinderView;
+import com.jaxbot.glass.qrlens.R;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * This activity opens the camera and does the actual scanning on a background
