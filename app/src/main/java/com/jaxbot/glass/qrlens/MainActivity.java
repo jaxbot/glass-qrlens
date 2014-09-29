@@ -7,6 +7,10 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,19 +33,28 @@ public class MainActivity extends Activity {
     private CardScrollView mCardScrollView;
     private ExampleCardScrollAdapter mAdapter;
 
+    boolean mNeedsReadMore;
+
+    String mCardData;
+
     Context context;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Intent intent = new Intent(this, CaptureActivity.class);
-		startActivityForResult(intent, SCAN_QR);
+        Intent intent = new Intent(this, CaptureActivity.class);
+        startActivityForResult(intent, SCAN_QR);
 
         context = this;
 	}
-	
-	@Override
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == SCAN_QR) {
 			if (resultCode == RESULT_OK) {
@@ -65,11 +78,18 @@ public class MainActivity extends Activity {
                     mAdapter = new ExampleCardScrollAdapter();
                     mCardScrollView.setAdapter(mAdapter);
                     mCardScrollView.activate();
+                    final Activity act = this;
+
+
                     mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                            audio.playSoundEffect(Sounds.DISALLOWED);
+                            if (mNeedsReadMore) {
+                                openOptionsMenu();
+                            } else {
+                                AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                                audio.playSoundEffect(Sounds.DISALLOWED);
+                            }
                         }
                     });
                     setContentView(mCardScrollView);
@@ -80,13 +100,70 @@ public class MainActivity extends Activity {
 		}
 	}
 
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.readmore, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection.
+        switch (item.getItemId()) {
+            case R.id.menu_item_1:
+                createCardsPaginated();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void createCards(String data) {
+        mCardData = data;
         mCards = new ArrayList<CardBuilder>();
 
-        mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
-                .setText(data)
-                .setFootnote("QR Text Content"));
+        if (data.length() > 225 || data.split("\\n").length > 7)
+            mNeedsReadMore = true;
 
+        mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
+            .setText(data)
+            .setFootnote("QR Text Content")
+        );
+
+    }
+
+    private void createCardsPaginated() {
+        mCards = new ArrayList<CardBuilder>();
+
+        String[] chunks = mCardData.split("\\b");
+
+        for (int i = 0; i < chunks.length; i++) {
+            String hunk = "";
+            for (; i < chunks.length; i++) {
+                if ((hunk + chunks[i]).length() < 225) {
+                    hunk += chunks[i];
+                } else {
+                    i--;
+                    break;
+                }
+                if (hunk.split("\\n").length > 6) break;
+            }
+            mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
+                .setText(hunk)
+                .setFootnote("QR Text Content")
+            );
+        }
+
+        mCardScrollView.setAdapter(mAdapter);
+        mCardScrollView.activate();
+
+        mNeedsReadMore = false;
     }
 
     private class ExampleCardScrollAdapter extends CardScrollAdapter {
