@@ -39,6 +39,8 @@ public class MainActivity extends Activity {
 
     Context context;
 
+    boolean allowDestroy = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,6 +50,14 @@ public class MainActivity extends Activity {
 
         context = this;
 	}
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        if (allowDestroy)
+            finish();
+    }
 
     @Override
     protected void onResume() {
@@ -92,6 +102,8 @@ public class MainActivity extends Activity {
                         }
                     });
                     setContentView(mCardScrollView);
+
+                    allowDestroy = true;
 				}
 			} else {
                 finish();
