@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -96,10 +97,15 @@ public final class ViewfinderView extends View {
         // Draw the exterior (i.e. outside the framing rect) darkened
         paint.setColor(resultBitmap != null ? resultColor : maskColor);
         canvas.drawRect(0, 0, width, frame.top, paint);
-        canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-        canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1,
+        canvas.drawRect(0, frame.top, frame.left, frame.bottom, paint);
+        canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom,
                 paint);
-        canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+        canvas.drawRect(0, frame.bottom, width, height, paint);
+
+        paint.setTextSize(24);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setColor(Color.WHITE);
+        canvas.drawText("Hover over QR code to scan", 320, 340, paint);
 
         if (resultBitmap != null) {
             // Draw the opaque result bitmap over the scanning rectangle
