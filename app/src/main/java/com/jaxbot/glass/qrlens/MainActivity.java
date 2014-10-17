@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
 	final int SCAN_QR = 4;
     final String TAG = "app";
 
-    final String FOOTER = "QR Text Content";
+    final String FOOTER = "QR text content";
 
     private List<CardBuilder> mCards;
     private CardScrollView mCardScrollView;
@@ -154,20 +154,36 @@ public class MainActivity extends Activity {
 
         String[] chunks = mCardData.split("\\b");
 
+        int lines = 0;
+        String line = "";
+
         for (int i = 0; i < chunks.length; i++) {
             String hunk = "";
+            line = "";
+            lines = 0;
             for (; i < chunks.length; i++) {
-                if ((hunk + chunks[i]).length() < 225) {
-                    hunk += chunks[i];
-                } else {
+                if ((line + chunks[i]).length() > 19) {
+                    line = "";
+                    lines++;
+                }
+                if (chunks[i].split("\\n").length > 1)
+                {
+                    line = "";
+                    lines++;
+                }
+                if (lines > 6)
+                {
                     i--;
                     break;
                 }
-                if (hunk.split("\\n").length > 6) break;
+
+                hunk += chunks[i];
+                line += chunks[i];
             }
+            if (hunk.substring(0, 1).equals(" "))
+                hunk = hunk.substring(1);
             mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
                 .setText(hunk)
-                .setFootnote(FOOTER)
             );
         }
 
