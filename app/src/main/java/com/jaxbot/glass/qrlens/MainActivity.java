@@ -22,6 +22,8 @@ import com.jaxbot.glass.barcode.scan.CaptureActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
 	final int SCAN_QR = 4;
@@ -93,10 +95,11 @@ public class MainActivity extends Activity {
                     mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                             if (mNeedsReadMore) {
+                                audio.playSoundEffect(Sounds.TAP);
                                 openOptionsMenu();
                             } else {
-                                AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                                 audio.playSoundEffect(Sounds.DISALLOWED);
                             }
                         }
@@ -149,6 +152,17 @@ public class MainActivity extends Activity {
 
     }
 
+    int numNewlines(String str)
+    {
+        Matcher m = Pattern.compile("(\n)|(\r)|(\r\n)").matcher(str);
+        int lines = 0;
+        while (m.find())
+        {
+            lines ++;
+        }
+        return lines;
+    }
+
     private void createCardsPaginated() {
         mCards = new ArrayList<CardBuilder>();
 
@@ -162,28 +176,35 @@ public class MainActivity extends Activity {
             line = "";
             lines = 0;
             for (; i < chunks.length; i++) {
-                if ((line + chunks[i]).length() > 19) {
+                if ((line + chunks[i]).length() > 23) {
+                    Log.i("Lines overflow", line);
                     line = "";
                     lines++;
                 }
-                if (chunks[i].split("\\n").length > 1)
+                line += chunks[i];
+                if (numNewlines(chunks[i]) > 0)
                 {
+                    Log.i("Lines newlines", line);
+                    Log.i("Lines", "newlines");
                     line = "";
                     lines++;
                 }
                 if (lines > 6)
                 {
+                    Log.i("Lines", "7");
                     i--;
                     break;
                 }
-
                 hunk += chunks[i];
-                line += chunks[i];
+
+                Log.i("Hunk", hunk);
             }
-            if (hunk.substring(0, 1).equals(" "))
+            if (hunk.substring(0, 2).equals("\r\n"))
+                hunk = hunk.substring(2);
+            if (hunk.substring(0, 1).equals(" ") || hunk.substring(0, 1).equals("\n") || hunk.substring(0, 1).equals("\r"))
                 hunk = hunk.substring(1);
-            mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
-                .setText(hunk)
+            mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT_FIXED)
+                            .setText(hunk)
             );
         }
 
