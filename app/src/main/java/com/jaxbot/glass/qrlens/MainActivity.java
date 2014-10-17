@@ -47,11 +47,16 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(this, CaptureActivity.class);
-        startActivityForResult(intent, SCAN_QR);
+        scanQR();
 
         context = this;
 	}
+
+    void scanQR()
+    {
+        Intent intent = new Intent(this, CaptureActivity.class);
+        startActivityForResult(intent, SCAN_QR);
+    }
 
     @Override
     protected void onPause()
@@ -96,12 +101,8 @@ public class MainActivity extends Activity {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                            if (mNeedsReadMore) {
-                                audio.playSoundEffect(Sounds.TAP);
-                                openOptionsMenu();
-                            } else {
-                                audio.playSoundEffect(Sounds.DISALLOWED);
-                            }
+                            audio.playSoundEffect(Sounds.TAP);
+                            openOptionsMenu();
                         }
                     });
                     setContentView(mCardScrollView);
@@ -120,9 +121,13 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.readmore, menu);
+        if (mNeedsReadMore)
+            inflater.inflate(R.menu.readmore, menu);
+        else
+            inflater.inflate(R.menu.defaultmenu, menu);
         return true;
     }
 
@@ -133,6 +138,10 @@ public class MainActivity extends Activity {
             case R.id.menu_item_1:
                 createCardsPaginated();
                 return true;
+            case R.id.menu_item_2:
+                allowDestroy = false;
+                scanQR();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -142,7 +151,7 @@ public class MainActivity extends Activity {
         mCardData = data;
         mCards = new ArrayList<CardBuilder>();
 
-        if (data.length() > 225 || data.split("\\n").length > 7)
+        if (data.length() > 200 || data.split("\n").length > 7)
             mNeedsReadMore = true;
 
         mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)

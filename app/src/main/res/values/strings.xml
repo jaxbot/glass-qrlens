@@ -17,7 +17,8 @@
 <resources>
 
     <string name="app_name">QR Lens</string>
-    <string name="read_more">Read More</string>
+    <string name="scan_another">Scan another</string>
+    <string name="read_more">Read more</string>
     <string name="app_picker_name">Applications</string>
     <string name="bookmark_picker_name">Bookmarks</string>
     <string name="button_add_calendar">Add to calendar</string>

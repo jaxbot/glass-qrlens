@@ -5,4 +5,8 @@
         android:id="@+id/menu_item_1"
         android:title="@string/read_more"
         android:icon="@drawable/ic_document_50" />   <!-- white on transparent icon -->
+    <item
+        android:id="@+id/menu_item_2"
+        android:title="@string/scan_another"
+        android:icon="@drawable/ic_launcher" />   <!-- white on transparent icon -->
 </menu>
