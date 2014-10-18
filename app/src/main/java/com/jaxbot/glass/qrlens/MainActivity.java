@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
     private MyCardScrollAdapter mAdapter;
 
     boolean mNeedsReadMore;
+    boolean invalid = false;
 
     String mCardData;
 
@@ -54,6 +55,7 @@ public class MainActivity extends Activity {
 
     void scanQR()
     {
+        allowDestroy = false;
         Intent intent = new Intent(this, CaptureActivity.class);
         startActivityForResult(intent, SCAN_QR);
     }
@@ -75,6 +77,8 @@ public class MainActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == SCAN_QR) {
 			if (resultCode == RESULT_OK) {
+                invalid = false;
+
 				Bundle res = data.getExtras();
 
                 String qrtype = res.getString("qr_type");
@@ -83,29 +87,27 @@ public class MainActivity extends Activity {
 				Log.w(TAG, qrtype);
 				Log.w(TAG, qrdata);
 
-				if (qrtype.equals("URI")) {
-					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(qrdata));
-					startActivity(browserIntent);
+                if (qrtype.equals("-1")) {
+                    showInvalid();
+                    createView();
+                    allowDestroy = true;
+                    return;
+                }
+                if (qrtype.equals("URI")) {
+                    try {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(qrdata));
+                        startActivity(browserIntent);
 
-					finish();
+                        finish();
+                    } catch (Exception e) {
+                        showInvalid();
+                        createView();
+                        allowDestroy = true;
+                    }
 				} else {
 
                     createCards(qrdata);
-
-                    mCardScrollView = new CardScrollView(this);
-                    mAdapter = new MyCardScrollAdapter();
-                    mCardScrollView.setAdapter(mAdapter);
-                    mCardScrollView.activate();
-
-                    mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                            audio.playSoundEffect(Sounds.TAP);
-                            openOptionsMenu();
-                        }
-                    });
-                    setContentView(mCardScrollView);
+                    createView();
 
                     allowDestroy = true;
 				}
@@ -114,6 +116,26 @@ public class MainActivity extends Activity {
             }
 		}
 	}
+
+    void createView() {
+        mCardScrollView = new CardScrollView(this);
+        mAdapter = new MyCardScrollAdapter();
+        mCardScrollView.setAdapter(mAdapter);
+        mCardScrollView.activate();
+
+        mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                audio.playSoundEffect(Sounds.TAP);
+                if (invalid)
+                    scanQR();
+                else
+                    openOptionsMenu();
+            }
+        });
+        setContentView(mCardScrollView);
+    }
 
     @Override
     public void onAttachedToWindow() {
@@ -139,12 +161,24 @@ public class MainActivity extends Activity {
                 createCardsPaginated();
                 return true;
             case R.id.menu_item_2:
-                allowDestroy = false;
                 scanQR();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showInvalid() {
+        mCards = new ArrayList<CardBuilder>();
+        mCards.add(new CardBuilder(this, CardBuilder.Layout.ALERT)
+                        .setIcon(R.drawable.ic_alert)
+                        .setText(R.string.unable_to_read)
+                        .setFootnote(R.string.tap_to_try_again)
+        );
+        invalid = true;
+
+        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audio.playSoundEffect(Sounds.ERROR);
     }
 
     private void createCards(String data) {
@@ -186,27 +220,21 @@ public class MainActivity extends Activity {
             lines = 0;
             for (; i < chunks.length; i++) {
                 if ((line + chunks[i]).length() > 23) {
-                    Log.i("Lines overflow", line);
                     line = "";
                     lines++;
                 }
                 line += chunks[i];
                 if (numNewlines(chunks[i]) > 0)
                 {
-                    Log.i("Lines newlines", line);
-                    Log.i("Lines", "newlines");
                     line = "";
                     lines++;
                 }
                 if (lines > 6)
                 {
-                    Log.i("Lines", "7");
                     i--;
                     break;
                 }
                 hunk += chunks[i];
-
-                Log.i("Hunk", hunk);
             }
             if (hunk.substring(0, 2).equals("\r\n"))
                 hunk = hunk.substring(2);

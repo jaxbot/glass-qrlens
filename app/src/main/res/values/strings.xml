@@ -19,6 +19,8 @@
     <string name="app_name">QR Lens</string>
     <string name="scan_another">Scan another</string>
     <string name="read_more">Read more</string>
+    <string name="unable_to_read">Unable to read QR code</string>
+    <string name="tap_to_try_again">Tap to try again</string>
     <string name="app_picker_name">Applications</string>
     <string name="bookmark_picker_name">Bookmarks</string>
     <string name="button_add_calendar">Add to calendar</string>

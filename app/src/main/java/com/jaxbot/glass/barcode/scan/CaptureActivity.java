@@ -15,6 +15,7 @@ package com.jaxbot.glass.barcode.scan;
 
 // Adjust to whatever the main package name is
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -47,6 +48,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * This activity opens the camera and does the actual scanning on a background
@@ -78,6 +81,8 @@ public final class CaptureActivity extends BaseGlassActivity implements
     private InactivityTimer mInactivityTimer;
     private BeepManager mBeepManager;
 
+    private Timer mTimer;
+
     public ViewfinderView getViewfinderView() {
         return mViewfinderView;
     }
@@ -102,6 +107,25 @@ public final class CaptureActivity extends BaseGlassActivity implements
         mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        final Activity activity = this;
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent();
+                        intent.putExtra("qr_type", "-1");
+                        intent.putExtra("qr_data", "");
+
+                        activity.setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                });
+            }
+        }, 15000);
     }
 
     @Override
@@ -278,6 +302,8 @@ public final class CaptureActivity extends BaseGlassActivity implements
 
     // Put up our own UI for how to handle the decoded contents.
     private void handleDecodeInternally(Result rawResult, Bitmap barcode) {
+        mTimer.cancel();
+
         ParsedResult parsedResult = ResultParser.parseResult(rawResult);
 
         Intent intent = new Intent();
