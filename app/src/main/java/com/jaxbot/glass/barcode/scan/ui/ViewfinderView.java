@@ -94,68 +94,24 @@ public final class ViewfinderView extends View {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
-        // Draw the exterior (i.e. outside the framing rect) darkened
-        paint.setColor(resultBitmap != null ? resultColor : maskColor);
-        canvas.drawRect(0, 0, width, frame.top, paint);
-        canvas.drawRect(0, frame.top, frame.left + 80, frame.bottom - 20, paint);
-        canvas.drawRect(frame.right - 79, frame.top, width, frame.bottom - 20,
-                paint);
-        canvas.drawRect(0, frame.bottom - 20, width, height, paint);
-
         paint.setTextSize(24);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setColor(Color.WHITE);
         canvas.drawText("Hover over QR code to scan", 320, 317, paint);
+        canvas.drawLine(frame.left + 85, frame.top, frame.left + 85, frame.top + 15, paint);
+        canvas.drawLine(frame.left + 85, frame.top, frame.left + 95, frame.top, paint);
+        canvas.drawLine(frame.right - 85, frame.top, frame.right - 85, frame.top + 15, paint);
+        canvas.drawLine(frame.right - 85, frame.top, frame.right - 95, frame.top, paint);
+        canvas.drawLine(frame.right - 85, frame.bottom - 20, frame.right - 95, frame.bottom - 20, paint);
+        canvas.drawLine(frame.left + 85, frame.bottom - 20, frame.left + 95, frame.bottom - 20, paint);
+        canvas.drawLine(frame.right - 85, frame.bottom - 20, frame.right - 85, frame.bottom - 35, paint);
+        canvas.drawLine(frame.left + 85, frame.bottom - 20, frame.left + 85, frame.bottom - 35, paint);
 
         if (resultBitmap != null) {
             // Draw the opaque result bitmap over the scanning rectangle
             paint.setAlpha(CURRENT_POINT_OPACITY);
             canvas.drawBitmap(resultBitmap, null, frame, paint);
-        }/* else {
-
-            float scaleX = frame.width() / (float) previewFrame.width();
-            float scaleY = frame.height() / (float) previewFrame.height();
-
-            List<ResultPoint> currentPossible = possibleResultPoints;
-            List<ResultPoint> currentLast = lastPossibleResultPoints;
-            int frameLeft = frame.left;
-            int frameTop = frame.top;
-            if (currentPossible.isEmpty()) {
-                lastPossibleResultPoints = null;
-            } else {
-                possibleResultPoints = new ArrayList<ResultPoint>(5);
-                lastPossibleResultPoints = currentPossible;
-                paint.setAlpha(CURRENT_POINT_OPACITY);
-                paint.setColor(resultPointColor);
-                synchronized (currentPossible) {
-                    for (ResultPoint point : currentPossible) {
-                        canvas.drawCircle(frameLeft
-                                + (int) (point.getX() * scaleX), frameTop
-                                + (int) (point.getY() * scaleY), POINT_SIZE,
-                                paint);
-                    }
-                }
-            }
-            if (currentLast != null) {
-                paint.setAlpha(CURRENT_POINT_OPACITY / 2);
-                paint.setColor(resultPointColor);
-                synchronized (currentLast) {
-                    float radius = POINT_SIZE / 2.0f;
-                    for (ResultPoint point : currentLast) {
-                        canvas.drawCircle(frameLeft
-                                + (int) (point.getX() * scaleX), frameTop
-                                + (int) (point.getY() * scaleY), radius, paint);
-                    }
-                }
-            }
-
-            // Request another update at the animation interval, but only repaint the laser line,
-            // not the entire viewfinder mask.
-            postInvalidateDelayed(ANIMATION_DELAY, frame.left - POINT_SIZE,
-                    frame.top - POINT_SIZE, frame.right + POINT_SIZE,
-                    frame.bottom + POINT_SIZE);
         }
-        */
     }
 
     public void drawViewfinder() {
