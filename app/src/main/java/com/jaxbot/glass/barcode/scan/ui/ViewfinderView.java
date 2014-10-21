@@ -97,21 +97,21 @@ public final class ViewfinderView extends View {
         // Draw the exterior (i.e. outside the framing rect) darkened
         paint.setColor(resultBitmap != null ? resultColor : maskColor);
         canvas.drawRect(0, 0, width, frame.top, paint);
-        canvas.drawRect(0, frame.top, frame.left, frame.bottom, paint);
-        canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom,
+        canvas.drawRect(0, frame.top, frame.left + 80, frame.bottom - 20, paint);
+        canvas.drawRect(frame.right - 79, frame.top, width, frame.bottom - 20,
                 paint);
-        canvas.drawRect(0, frame.bottom, width, height, paint);
+        canvas.drawRect(0, frame.bottom - 20, width, height, paint);
 
         paint.setTextSize(24);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setColor(Color.WHITE);
-        canvas.drawText("Hover over QR code to scan", 320, 340, paint);
+        canvas.drawText("Hover over QR code to scan", 320, 317, paint);
 
         if (resultBitmap != null) {
             // Draw the opaque result bitmap over the scanning rectangle
             paint.setAlpha(CURRENT_POINT_OPACITY);
             canvas.drawBitmap(resultBitmap, null, frame, paint);
-        } else {
+        }/* else {
 
             float scaleX = frame.width() / (float) previewFrame.width();
             float scaleY = frame.height() / (float) previewFrame.height();
@@ -155,6 +155,7 @@ public final class ViewfinderView extends View {
                     frame.top - POINT_SIZE, frame.right + POINT_SIZE,
                     frame.bottom + POINT_SIZE);
         }
+        */
     }
 
     public void drawViewfinder() {
