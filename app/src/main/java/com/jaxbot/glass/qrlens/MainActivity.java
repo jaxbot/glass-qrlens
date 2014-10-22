@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.google.android.glass.media.Sounds;
+import com.google.android.glass.touchpad.Gesture;
+import com.google.android.glass.touchpad.GestureDetector;
 import com.google.android.glass.widget.CardBuilder;
 import com.google.android.glass.widget.CardScrollAdapter;
 import com.google.android.glass.widget.CardScrollView;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements GestureDetector.FingerListener {
 	final int SCAN_QR = 4;
     final String TAG = "app";
 
@@ -48,22 +50,49 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        scanQR();
-
         context = this;
-	}
+        invalid = false;
 
-    void scanQR()
-    {
-        allowDestroy = false;
-        Intent intent = new Intent(this, CaptureActivity.class);
-        startActivityForResult(intent, SCAN_QR);
-    }
+        Intent data = getIntent();
+        Bundle res = data.getExtras();
+
+        String qrtype = res.getString("qr_type");
+        String qrdata = res.getString("qr_data");
+
+        Log.w(TAG, qrtype);
+        Log.w(TAG, qrdata);
+
+        if (qrtype.equals("-1")) {
+            showInvalid();
+            createView();
+            allowDestroy = true;
+            return;
+        }
+        if (qrtype.equals("URI")) {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(qrdata));
+                startActivity(browserIntent);
+
+                finish();
+            } catch (Exception e) {
+                showInvalid();
+                createView();
+                allowDestroy = true;
+            }
+        } else {
+
+            createCards(qrdata);
+            createView();
+
+            allowDestroy = true;
+        }
+	}
 
     @Override
     protected void onPause()
     {
         super.onPause();
+
         if (allowDestroy)
             finish();
     }
@@ -77,40 +106,6 @@ public class MainActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == SCAN_QR) {
 			if (resultCode == RESULT_OK) {
-                invalid = false;
-
-				Bundle res = data.getExtras();
-
-                String qrtype = res.getString("qr_type");
-                String qrdata = res.getString("qr_data");
-
-				Log.w(TAG, qrtype);
-				Log.w(TAG, qrdata);
-
-                if (qrtype.equals("-1")) {
-                    showInvalid();
-                    createView();
-                    allowDestroy = true;
-                    return;
-                }
-                if (qrtype.equals("URI")) {
-                    try {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(qrdata));
-                        startActivity(browserIntent);
-
-                        finish();
-                    } catch (Exception e) {
-                        showInvalid();
-                        createView();
-                        allowDestroy = true;
-                    }
-				} else {
-
-                    createCards(qrdata);
-                    createView();
-
-                    allowDestroy = true;
-				}
 			} else {
                 finish();
             }
@@ -129,7 +124,7 @@ public class MainActivity extends Activity {
                 AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 audio.playSoundEffect(Sounds.TAP);
                 if (invalid)
-                    scanQR();
+                    finish();
                 else
                     openOptionsMenu();
             }
@@ -161,7 +156,7 @@ public class MainActivity extends Activity {
                 createCardsPaginated();
                 return true;
             case R.id.menu_item_2:
-                scanQR();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -250,6 +245,13 @@ public class MainActivity extends Activity {
 
         mNeedsReadMore = false;
     }
+
+    @Override
+    public void onFingerCountChanged(int i, int i2) {
+
+    }
+
+
 
     private class MyCardScrollAdapter extends CardScrollAdapter {
 

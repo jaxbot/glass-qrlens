@@ -48,6 +48,7 @@ import com.jaxbot.glass.barcode.migrated.BeepManager;
 import com.jaxbot.glass.barcode.migrated.FinishListener;
 import com.jaxbot.glass.barcode.migrated.InactivityTimer;
 import com.jaxbot.glass.barcode.scan.ui.ViewfinderView;
+import com.jaxbot.glass.qrlens.MainActivity;
 import com.jaxbot.glass.qrlens.R;
 
 import java.io.IOException;
@@ -171,6 +172,15 @@ public final class CaptureActivity extends BaseGlassActivity implements
         csr.activate();
         setContentView(csr);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final Context ctx = this;
+        final Activity activity = this;
+
         mTimer = new Timer();
         mTimer.schedule(new TimerTask() {
             @Override
@@ -178,12 +188,10 @@ public final class CaptureActivity extends BaseGlassActivity implements
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Intent intent = new Intent();
+                        Intent intent = new Intent(ctx, MainActivity.class);
                         intent.putExtra("qr_type", "-1");
                         intent.putExtra("qr_data", "");
-
-                        activity.setResult(RESULT_OK, intent);
-                        finish();
+                        startActivity(intent);
                     }
                 });
             }
@@ -191,12 +199,9 @@ public final class CaptureActivity extends BaseGlassActivity implements
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     protected void onPause() {
+        mTimer.cancel();
+
         if (mHandler != null) {
             mHandler.quitSynchronously();
             mHandler = null;
@@ -340,13 +345,10 @@ public final class CaptureActivity extends BaseGlassActivity implements
 
         ParsedResult parsedResult = ResultParser.parseResult(rawResult);
 
-        Intent intent = new Intent();
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("qr_type", parsedResult.getType().toString());
         intent.putExtra("qr_data", parsedResult.toString());
-
-        this.setResult(RESULT_OK, intent);
-
-        finish();
+        startActivity(intent);
     }
 
     private void initCamera(SurfaceHolder surfaceHolder) {
