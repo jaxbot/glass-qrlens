@@ -50,6 +50,8 @@ public class MainActivity extends Activity implements GestureDetector.FingerList
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+        this.setResult(RESULT_CANCELED);
+
         context = this;
         invalid = false;
 
@@ -93,8 +95,10 @@ public class MainActivity extends Activity implements GestureDetector.FingerList
     {
         super.onPause();
 
-        if (allowDestroy)
+        if (allowDestroy) {
+            this.setResult(RESULT_OK);
             finish();
+        }
     }
 
     @Override

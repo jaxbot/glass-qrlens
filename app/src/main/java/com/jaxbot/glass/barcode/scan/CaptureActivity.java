@@ -191,11 +191,19 @@ public final class CaptureActivity extends BaseGlassActivity implements
                         Intent intent = new Intent(ctx, MainActivity.class);
                         intent.putExtra("qr_type", "-1");
                         intent.putExtra("qr_data", "");
-                        startActivity(intent);
+                        startActivityForResult(intent, 2);
                     }
                 });
             }
         }, 15000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK)
+                finish();
+        }
     }
 
     @Override
@@ -348,7 +356,7 @@ public final class CaptureActivity extends BaseGlassActivity implements
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("qr_type", parsedResult.getType().toString());
         intent.putExtra("qr_data", parsedResult.toString());
-        startActivity(intent);
+        startActivityForResult(intent, 2);
     }
 
     private void initCamera(SurfaceHolder surfaceHolder) {
