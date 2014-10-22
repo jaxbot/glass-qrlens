@@ -20,8 +20,6 @@
     android:keepScreenOn="true"
     android:id="@+id/activity_capture">
 
-
-
     <SurfaceView
         android:id="@+id/preview_view"
         android:layout_width="match_parent"

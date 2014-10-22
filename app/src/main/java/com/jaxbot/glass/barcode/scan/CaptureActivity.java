@@ -17,6 +17,7 @@ package com.jaxbot.glass.barcode.scan;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -26,9 +27,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
 
+import com.google.android.glass.widget.CardScrollAdapter;
+import com.google.android.glass.widget.CardScrollView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
@@ -98,17 +104,73 @@ public final class CaptureActivity extends BaseGlassActivity implements
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.activity_capture);
 
-        mHasSurface = false;
-        mInactivityTimer = new InactivityTimer(this);
-        mBeepManager = new BeepManager(this);
-
-        mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
-
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-
+        final Context ctx = this;
         final Activity activity = this;
+        final CaptureActivity that = this;
+
+        CardScrollView csr = new CardScrollView(ctx);
+        csr.setAdapter(new CardScrollAdapter() {
+            @Override
+            public int getCount() {
+                return 1;
+            }
+
+            @Override
+            public Object getItem(int i) {
+                return null;
+            }
+
+            @Override
+            public View getView(int i, View view, ViewGroup viewGroup) {
+                View convertView;
+                LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.activity_capture, viewGroup);
+
+                mHasSurface = false;
+                mInactivityTimer = new InactivityTimer(activity);
+                mBeepManager = new BeepManager(activity);
+
+                mViewfinderView = (ViewfinderView) convertView.findViewById(R.id.viewfinder_view);
+
+                PreferenceManager.setDefaultValues(ctx, R.xml.preferences, false);
+
+                // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
+                // want to open the camera driver and measure the screen size if we're going to show the help on
+                // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
+                // off screen.
+                mCameraManager = new CameraManager(getApplication());
+                mViewfinderView.setCameraManager(mCameraManager);
+
+                mHandler = null;
+
+                SurfaceView surfaceView = (SurfaceView) convertView.findViewById(R.id.preview_view);
+                SurfaceHolder surfaceHolder = surfaceView.getHolder();
+
+                if (mHasSurface) {
+                    // The activity was paused but not stopped, so the surface still exists. Therefore
+                    // surfaceCreated() won't be called, so init the camera here.
+                    initCamera(surfaceHolder);
+                } else {
+                    // Install the callback and wait for surfaceCreated() to init the camera.
+                    surfaceHolder.addCallback(that);
+                }
+
+                mBeepManager.updatePrefs();
+
+                mInactivityTimer.onResume();
+
+                return convertView;
+            }
+
+            @Override
+            public int getPosition(Object o) {
+                return 1;
+            }
+        });
+        csr.activate();
+        setContentView(csr);
+
         mTimer = new Timer();
         mTimer.schedule(new TimerTask() {
             @Override
@@ -131,34 +193,6 @@ public final class CaptureActivity extends BaseGlassActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
-
-        // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
-        // want to open the camera driver and measure the screen size if we're going to show the help on
-        // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
-        // off screen.
-        mCameraManager = new CameraManager(getApplication());
-        mViewfinderView.setCameraManager(mCameraManager);
-
-        mHandler = null;
-
-
-
-        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
-        SurfaceHolder surfaceHolder = surfaceView.getHolder();
-
-        if (mHasSurface) {
-            // The activity was paused but not stopped, so the surface still exists. Therefore
-            // surfaceCreated() won't be called, so init the camera here.
-            initCamera(surfaceHolder);
-        } else {
-            // Install the callback and wait for surfaceCreated() to init the camera.
-            surfaceHolder.addCallback(this);
-        }
-
-        mBeepManager.updatePrefs();
-
-        mInactivityTimer.onResume();
     }
 
     @Override
