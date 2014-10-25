@@ -16,7 +16,6 @@ package com.jaxbot.glass.barcode.scan;
 // Adjust to whatever the main package name is
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -25,7 +24,6 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -45,7 +43,6 @@ import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ResultParser;
 import com.jaxbot.glass.barcode.BaseGlassActivity;
 import com.jaxbot.glass.barcode.migrated.BeepManager;
-import com.jaxbot.glass.barcode.migrated.FinishListener;
 import com.jaxbot.glass.barcode.migrated.InactivityTimer;
 import com.jaxbot.glass.barcode.scan.ui.ViewfinderView;
 import com.jaxbot.glass.qrlens.MainActivity;
@@ -133,8 +130,6 @@ public final class CaptureActivity extends BaseGlassActivity implements
                 mBeepManager = new BeepManager(activity);
 
                 mViewfinderView = (ViewfinderView) convertView.findViewById(R.id.viewfinder_view);
-
-                //PreferenceManager.setDefaultValues(ctx, R.xml.preferences, false);
 
                 // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
                 // want to open the camera driver and measure the screen size if we're going to show the help on
@@ -224,12 +219,6 @@ public final class CaptureActivity extends BaseGlassActivity implements
     }
 
     @Override
-    protected boolean onTap() {
-        openOptionsMenu();
-        return super.onTap();
-    }
-
-    @Override
     protected void onDestroy() {
         mInactivityTimer.shutdown();
         super.onDestroy();
@@ -292,58 +281,9 @@ public final class CaptureActivity extends BaseGlassActivity implements
         boolean fromLiveScan = barcode != null;
         if (fromLiveScan) {
             mBeepManager.playBeepSoundAndVibrate();
-            drawResultPoints(barcode, scaleFactor, rawResult, getResources()
-                    .getColor(R.color.result_points));
         }
 
         handleDecodeInternally(rawResult, barcode);
-    }
-
-    /**
-     * Superimpose a line for 1D or dots for 2D to highlight the key features of
-     * the barcode.
-     *
-     * @param barcode
-     *            A bitmap of the captured image.
-     * @param scaleFactor
-     *            amount by which thumbnail was scaled
-     * @param rawResult
-     *            The decoded results which contains the points to draw.
-     */
-    private static void drawResultPoints(Bitmap barcode, float scaleFactor,
-            Result rawResult, int color) {
-        ResultPoint[] points = rawResult.getResultPoints();
-        if (points != null && points.length > 0) {
-            Canvas canvas = new Canvas(barcode);
-            Paint paint = new Paint();
-            paint.setColor(color);
-            if (points.length == 2) {
-                paint.setStrokeWidth(4.0f);
-                drawLine(canvas, paint, points[0], points[1], scaleFactor);
-            } else if (points.length == 4
-                    && (rawResult.getBarcodeFormat() == BarcodeFormat.UPC_A || rawResult
-                            .getBarcodeFormat() == BarcodeFormat.EAN_13)) {
-                // Hacky special case -- draw two lines, for the barcode and metadata
-                drawLine(canvas, paint, points[0], points[1], scaleFactor);
-                drawLine(canvas, paint, points[2], points[3], scaleFactor);
-            } else {
-                paint.setStrokeWidth(10.0f);
-                for (ResultPoint point : points) {
-                    if (point != null) {
-                        canvas.drawPoint(scaleFactor * point.getX(),
-                                scaleFactor * point.getY(), paint);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
-            ResultPoint b, float scaleFactor) {
-        if (a != null && b != null) {
-            //canvas.drawLine(scaleFactor * a.getX(), scaleFactor * a.getY(),
-               //     scaleFactor * b.getX(), scaleFactor * b.getY(), paint);
-        }
     }
 
     // Put up our own UI for how to handle the decoded contents.
@@ -390,12 +330,6 @@ public final class CaptureActivity extends BaseGlassActivity implements
         intent.putExtra("qr_type", "-2");
         intent.putExtra("qr_data", "");
         startActivityForResult(intent, 2);
-    }
-
-    public void restartPreviewAfterDelay(long delayMS) {
-        if (mHandler != null) {
-            mHandler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
-        }
     }
 
     public void drawViewfinder() {
