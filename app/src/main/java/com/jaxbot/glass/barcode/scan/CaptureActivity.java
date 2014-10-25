@@ -171,7 +171,6 @@ public final class CaptureActivity extends BaseGlassActivity implements
         });
         csr.activate();
         setContentView(csr);
-
     }
 
     @Override
@@ -387,12 +386,10 @@ public final class CaptureActivity extends BaseGlassActivity implements
     }
 
     private void displayFrameworkBugMessageAndExit() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.app_name));
-        builder.setMessage(getString(R.string.msg_camera_framework_bug));
-        builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
-        builder.setOnCancelListener(new FinishListener(this));
-        builder.show();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("qr_type", "-2");
+        intent.putExtra("qr_data", "");
+        startActivityForResult(intent, 2);
     }
 
     public void restartPreviewAfterDelay(long delayMS) {

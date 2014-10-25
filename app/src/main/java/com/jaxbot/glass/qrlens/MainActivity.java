@@ -65,7 +65,13 @@ public class MainActivity extends Activity {
         Log.w(TAG, qrdata);
 
         if (qrtype.equals("-1")) {
-            showInvalid();
+            showError(getString(R.string.unable_to_read));
+            createView();
+            allowDestroy = true;
+            return;
+        }
+        if (qrtype.equals("-2")) {
+            showError(getString(R.string.camera_error));
             createView();
             allowDestroy = true;
             return;
@@ -77,7 +83,7 @@ public class MainActivity extends Activity {
 
                 finish();
             } catch (Exception e) {
-                showInvalid();
+                showError(getString(R.string.unable_to_read));
                 createView();
                 allowDestroy = true;
             }
@@ -174,11 +180,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void showInvalid() {
+    private void showError(String error) {
         mCards = new ArrayList<CardBuilder>();
         mCards.add(new CardBuilder(this, CardBuilder.Layout.ALERT)
                         .setIcon(R.drawable.ic_alert)
-                        .setText(R.string.unable_to_read)
+                        .setText(error)
                         .setFootnote(R.string.tap_to_try_again)
         );
         invalid = true;
