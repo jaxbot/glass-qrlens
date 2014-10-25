@@ -134,7 +134,7 @@ public final class CaptureActivity extends BaseGlassActivity implements
 
                 mViewfinderView = (ViewfinderView) convertView.findViewById(R.id.viewfinder_view);
 
-                PreferenceManager.setDefaultValues(ctx, R.xml.preferences, false);
+                //PreferenceManager.setDefaultValues(ctx, R.xml.preferences, false);
 
                 // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
                 // want to open the camera driver and measure the screen size if we're going to show the help on
