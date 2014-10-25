@@ -19,6 +19,9 @@
         <activity android:name="com.jaxbot.glass.qrlens.MainActivity" >
 
         </activity>
+        <activity android:name="com.jaxbot.glass.qrlens.ReadMoreActivity" >
+
+        </activity>
         <activity
             android:name="com.jaxbot.glass.barcode.scan.CaptureActivity"
             android:clearTaskOnLaunch="true"

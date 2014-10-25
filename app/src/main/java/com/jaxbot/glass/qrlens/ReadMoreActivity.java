@@ -27,12 +27,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MainActivity extends Activity {
-	final int SCAN_QR = 4;
-    final String TAG = "app";
-
-    final String FOOTER = "QR text content";
-
+/**
+ * Created by jonathan on 10/24/14.
+ */
+public class ReadMoreActivity extends Activity {
     private List<CardBuilder> mCards;
     private CardScrollView mCardScrollView;
     private MyCardScrollAdapter mAdapter;
@@ -46,9 +44,9 @@ public class MainActivity extends Activity {
 
     boolean allowDestroy = false;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         this.setResult(RESULT_CANCELED);
 
@@ -58,44 +56,14 @@ public class MainActivity extends Activity {
         Intent data = getIntent();
         Bundle res = data.getExtras();
 
-        String qrtype = res.getString("qr_type");
-        String qrdata = res.getString("qr_data");
+        mCardData = res.getString("qr_data");
 
-        Log.w(TAG, qrtype);
-        Log.w(TAG, qrdata);
+        mCardScrollView = new CardScrollView(this);
 
-        if (qrtype.equals("-1")) {
-            showInvalid();
-            createView();
-            allowDestroy = true;
-            return;
-        }
-        if (qrtype.equals("URI")) {
-            try {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(qrdata));
-                startActivity(browserIntent);
+        createCardsPaginated();
+        createView();
 
-                finish();
-            } catch (Exception e) {
-                showInvalid();
-                createView();
-                allowDestroy = true;
-            }
-        } else {
-
-            createCards(qrdata);
-            createView();
-
-            allowDestroy = true;
-        }
-	}
-
-    void showPagination()
-    {
-        allowDestroy = false;
-        Intent intent = new Intent(this, ReadMoreActivity.class);
-        intent.putExtra("qr_data", mCardData.toString());
-        startActivityForResult(intent, 3);
+        allowDestroy = true;
     }
 
     @Override
@@ -113,18 +81,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
     }
-
-    @Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 3) {
-			if (resultCode == RESULT_OK) {
-                finish();
-            }
-		}
-	}
-
     void createView() {
-        mCardScrollView = new CardScrollView(this);
         mAdapter = new MyCardScrollAdapter();
         mCardScrollView.setAdapter(mAdapter);
         mCardScrollView.activate();
@@ -134,10 +91,7 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 audio.playSoundEffect(Sounds.TAP);
-                if (invalid)
-                    finish();
-                else
-                    openOptionsMenu();
+                openOptionsMenu();
             }
         });
         setContentView(mCardScrollView);
@@ -152,10 +106,7 @@ public class MainActivity extends Activity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         MenuInflater inflater = getMenuInflater();
-        if (mNeedsReadMore)
-            inflater.inflate(R.menu.readmore, menu);
-        else
-            inflater.inflate(R.menu.defaultmenu, menu);
+        inflater.inflate(R.menu.defaultmenu, menu);
         return true;
     }
 
@@ -163,10 +114,8 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection.
         switch (item.getItemId()) {
-            case R.id.menu_item_1:
-                showPagination();
-                return true;
             case R.id.menu_item_2:
+                this.setResult(RESULT_OK);
                 finish();
                 return true;
             default:
@@ -174,31 +123,60 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void showInvalid() {
-        mCards = new ArrayList<CardBuilder>();
-        mCards.add(new CardBuilder(this, CardBuilder.Layout.ALERT)
-                        .setIcon(R.drawable.ic_alert)
-                        .setText(R.string.unable_to_read)
-                        .setFootnote(R.string.tap_to_try_again)
-        );
-        invalid = true;
-
-        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audio.playSoundEffect(Sounds.ERROR);
+    int numNewlines(String str)
+    {
+        Matcher m = Pattern.compile("(\n)|(\r)|(\r\n)").matcher(str);
+        int lines = 0;
+        while (m.find())
+        {
+            lines ++;
+        }
+        return lines;
     }
 
-    private void createCards(String data) {
-        mCardData = data;
+    private void createCardsPaginated() {
         mCards = new ArrayList<CardBuilder>();
 
-        if (data.length() > 200 || data.split("\n").length > 7)
-            mNeedsReadMore = true;
+        String[] chunks = mCardData.split("\\b");
 
-        mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT)
-            .setText(data)
-            .setFootnote(FOOTER)
-        );
+        int lines;
+        String line;
 
+        for (int i = 0; i < chunks.length; i++) {
+            String hunk = "";
+            line = "";
+            lines = 0;
+            for (; i < chunks.length; i++) {
+                if ((line + chunks[i]).length() > 23) {
+                    line = "";
+                    lines++;
+                }
+                line += chunks[i];
+                if (numNewlines(chunks[i]) > 0)
+                {
+                    line = "";
+                    lines++;
+                }
+                if (lines > 6)
+                {
+                    i--;
+                    break;
+                }
+                hunk += chunks[i];
+            }
+            if (hunk.substring(0, 2).equals("\r\n"))
+                hunk = hunk.substring(2);
+            if (hunk.substring(0, 1).equals(" ") || hunk.substring(0, 1).equals("\n") || hunk.substring(0, 1).equals("\r"))
+                hunk = hunk.substring(1);
+            mCards.add(new CardBuilder(this, CardBuilder.Layout.TEXT_FIXED)
+                            .setText(hunk)
+            );
+        }
+
+        mCardScrollView.setAdapter(mAdapter);
+        mCardScrollView.activate();
+
+        mNeedsReadMore = false;
     }
 
     private class MyCardScrollAdapter extends CardScrollAdapter {
@@ -234,4 +212,3 @@ public class MainActivity extends Activity {
         }
     }
 }
-
