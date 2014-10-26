@@ -4,5 +4,5 @@
 <item
     android:id="@+id/menu_item_2"
     android:title="@string/scan_another"
-    android:icon="@drawable/ic_launcher" />   <!-- white on transparent icon -->
+    android:icon="@drawable/ic_search" />   <!-- white on transparent icon -->
 </menu>
